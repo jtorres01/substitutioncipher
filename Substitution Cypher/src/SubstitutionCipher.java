@@ -53,28 +53,28 @@ public class SubstitutionCipher {
 		String key = ""; //empty key string, will be defined later
 		
 		
-		System.out.println("Encrypting");
+		System.out.println("Start Encrypting");
 		 
 		
 		boolean check = true;
 		while(check == true) { //loops if entry isnt 1 or 2
 			
 			System.out.println("CREATE NEW KEY (1) or USE EXISTING KEY (2) or GO BACK (3) ? : ");
-			String choice = scan.next();
+			String option = scan.next();
 			
 			//create new key
-			if(choice.equals("1")) {
+			if(option.equals("1")) {
 				check=false;
 				key = keygen();
 				saveFile(key, "Key");
 			}
 			
 			//use existing key
-			if(choice.equals("2")) {
+			if(option.equals("2")) {
 				
 				System.out.println("Enter the exact name of the key file: "); //must include file extension .txt
-				String keyName = scan.next();
-				File keyFile = new File(keyName);
+				String keyFileName = scan.next();
+				File keyFile = new File(keyFileName);
 				
 				if(!keyFile.exists()) {
 					System.out.println("File not found!");
@@ -84,29 +84,30 @@ public class SubstitutionCipher {
 					check=false;
 					System.out.println("Key file found!\n");
 					//gets file contents and writes it to a string, updates key variable
-					StringBuilder fileContents = new StringBuilder((int)keyFile.length());
+					StringBuilder text = new StringBuilder((int)keyFile.length());
 					try (Scanner scanner = new Scanner(keyFile)) {
 				        while(scanner.hasNextLine()) {
-				            fileContents.append(scanner.nextLine() + System.lineSeparator());
+				            text.append(scanner.nextLine() + System.lineSeparator());
 				        }
-				        key = fileContents.toString();
+				        key = text.toString();
 				    }
 				}
 			}
-			if(choice.equals("3")) {
+			if(option.equals("3")) {
 				runMenu();
 			}
 		}
 						
-		String phrase = inputText(); //gets user input for text to encrypt
-		String enc = encrypt(phrase, key); //encrypts user input
-		System.out.println("Encrypted text: " + enc + "\n");		
-		saveFile(enc, "Encrypted");
+		String input = inputText(); //gets user input for text to encrypt
+		String encrypted = encrypt(input, key); //encrypts user input
+		System.out.println("Encrypted text: ");
+		System.out.println(encrypted);
+		saveFile(encrypted, "Encrypted");
 	}
 	
 	public static void Decryption() throws FileNotFoundException {
 		//get file names, write them to strings, send them to decrypt method
-		System.out.println("~~ Decryption Selected ~~");
+		System.out.println("Starting Decryption");
 		System.out.println("Generate encrypted text using existing key and encrypted file");
 		Scanner scan = new Scanner(System.in);
 		String key = "";
@@ -144,7 +145,7 @@ public class SubstitutionCipher {
 			}
 		}
 		
-		//GET ENC FILE NAME FROM USER
+		//GET Encrypted FILE NAME FROM USER
 		//IF IT EXISTS, CONVERT IT TO STRING
 		while(filecheck == true) {
 			System.out.println("Enter full name of encrypted file: ");
@@ -167,57 +168,60 @@ public class SubstitutionCipher {
 			}
 		}
 		
-		String dec = decrypt(file, key); //generates decrypted string using file and key
-		System.out.println("Here is your decrypted message: " + dec);
-		saveFile(dec, "Decrypted");
+		String decrypted = decrypt(file, key); //generates decrypted string using file and key
+		System.out.println("Here is your decrypted message: ");
+		System.out.println(decrypted);
+		saveFile(decrypted, "Decrypted");
 	}
 	
 	public static String keygen() {
 		System.out.println("Enter a lowercase letter to map to each letter of the alphabet.\n");
 		
-		boolean found = false; //used to check for duplicates before adding value to key array
-		Scanner in = new Scanner(System.in);
+		boolean duplicate = false; //used to check for duplicates before adding value to key array
+		Scanner scan = new Scanner(System.in);
 		
 		char[] alphabet = new char[] 
-				{'a','b','c','d','e','f','g','h','i','j','k','l','m',
-				'n','o','p','q','r','s','t','u','v','w','x','y','z'};
+				{'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
 		char[] key = new char[26];
-		
+		//runs through the key array to create a new key array
 		for(int i = 0; i < key.length; i++) {
-			//iterate thru empty key array, adding user entered values each iteration
 			
-			found = false; //reset bool for duplicate check
+			duplicate = false; //checks for duplicate letters
 			
 			//print the alphabet array
 			System.out.print("plaintext = ");
 			for(int x=0; x<alphabet.length; x++) {
-				System.out.print("(" + alphabet[x] + "), ");
+				System.out.print("(" + alphabet[x] + "),");
 			}
 			System.out.println();
 			
 			//get character from user
-			System.out.println("\n Enter a lowercase letter: ");
-			char value = in.next().charAt(0);	
+			System.out.println("Enter a lowercase letter: ");
+			char value = scan.next().charAt(0);	//takes only the first char
 			
-			//check for duplicate
+			//check for duplicates
 			for(char z : key) {
-				if(z == value) { found = true; }
+				if(z == value) { 
+					duplicate = true; 
+					}
 			}
 
 			//if value entered is duplicate
-			while(found == true) {
-				found = false;
+			while(duplicate == true) {
+				duplicate = false;
 				System.out.println("That letter has already been used, try another: ");
-				value = in.next().charAt(0);
+				value = scan.next().charAt(0);
 				
-				//check for duplicate
+				//check for duplicate again
 				for(char z : key) {
-					if(z == value) { found = true; }
+					if(z == value) { 
+						duplicate = true; 
+						}
 				}
 			}
 			
 			//if no duplicate, add to key
-			if(found == false) {
+			if(duplicate == false) {
 				System.out.println(value);
 				key[i] = value;
 			}
@@ -225,7 +229,7 @@ public class SubstitutionCipher {
 			//print the key array
 			System.out.print("key       = ");
 			for(int n=0; n<key.length; n++) {
-				System.out.print("(" + key[n] + "), ");
+				System.out.print("(" + key[n] + "),");
 			}
 			System.out.println();
 		}
@@ -234,24 +238,24 @@ public class SubstitutionCipher {
 		return new String(key);
 	}
 	
-	public static void saveFile(String str, String type) throws FileNotFoundException {
-		Scanner in = new Scanner(System.in);
+	public static void saveFile(String str, String ending) throws FileNotFoundException {
+		Scanner scan = new Scanner(System.in);
 		boolean check = true;
 		
 		while(check == true) { //loops to check if file already exists
-			System.out.println("What would you like to name your " + type +" file: ");
-			String fileName = in.next();
+			System.out.println("What would you like to name your " + ending +" file: ");
+			String fileName = scan.next();
 			
 			//appends file type to the name
-			if(type.equals("Key")) {
+			if(ending.equals("Key")) {
 				fileName+="KEY.txt";
 			}
 			
-			if(type.equals("Encrypted")) {
+			if(ending.equals("Encrypted")) {
 				fileName+="ENC.txt";
 			}
 			
-			if(type.equals("Decrypted")) {
+			if(ending.equals("Decrypted")) {
 				fileName+="DEC.txt";
 			}
 			
@@ -264,10 +268,10 @@ public class SubstitutionCipher {
 			
 			else { //breaks loop and saves file
 				check = false;
-				PrintWriter writer = new PrintWriter(file);
-				writer.print(str);
-				writer.close();
-				System.out.println(type + " file saved succesfully! Saved as '"+fileName+"\n");
+				PrintWriter creator = new PrintWriter(file);
+				creator.print(str);
+				creator.close();
+				System.out.println(ending + " file saved succesfully! Saved as '"+fileName+"\n");
 			}
 		}
 		
@@ -283,7 +287,7 @@ public class SubstitutionCipher {
 				{'a','b','c','d','e','f','g','h','i','j','k','l','m',
 				'n','o','p','q','r','s','t','u','v','w','x','y','z'};
 		
-		//String alph = "abcdefghijklmnopqrstuvwxyz";
+		
 		
 		if(type == "encrypt") {
 			//iterate through alphabet and find match, save index
@@ -318,12 +322,49 @@ public class SubstitutionCipher {
 		
 	}
 	
-	public static String inputText() {
+	public static String inputText() throws FileNotFoundException {
 		//get user input text to be encrypted
-		Scanner in = new Scanner(System.in);
-		System.out.println("Enter the phrase you would like to encrypt:");
-		String phrase = in.nextLine();
-		return phrase;
+		Scanner scan = new Scanner(System.in);
+		String text ="";//this will be the content that will returned, filled later
+		boolean breakOut = true;
+
+		while(breakOut == true) {
+			
+		//asks for input type form file or user input
+		System.out.println("CREATE a new phrase (1) or USE EXISTING file (2)");
+		String option = scan.nextLine();
+		
+		//manual user input text
+		if(option.equals("1")) {
+			System.out.println("Enter the phrase you would like to encrypt:");
+			text = scan.nextLine();
+			return text;
+		}
+		//pulls file from system
+		if(option.equals("2")) {
+			System.out.println("Enter full name of plain text file: ");
+			String userInputFile = scan.next();
+			File plainTextFile = new File(userInputFile);
+			if(!plainTextFile.exists()) {
+				System.out.println("File not found!");
+				System.out.println("Please make sure it is typed correct and includes .txt extension\n");
+			}
+			else {
+				breakOut = false; //breaks loop if file exists
+				StringBuilder efileContents = new StringBuilder((int)plainTextFile.length());
+				try (Scanner scanner = new Scanner(plainTextFile)) {
+			        while(scanner.hasNextLine()) {
+			            efileContents.append(scanner.nextLine() + System.lineSeparator());
+			        }
+			        text = efileContents.toString();
+			    }
+				System.out.println("Encrypted file found!\n");
+			}
+			return text;
+		}
+		}
+		scan.close();
+		return text;
 	}
 			
 	public static String encrypt(String phrase, String key) {
